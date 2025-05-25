@@ -6,6 +6,20 @@ date: "`r Sys.Date()`"
 output: distill::distill_article
 ---
 
+## Librarys
+
+```{r}
+# in this codeblock the most important libraries are loaded
+  library(ggplot2)
+  library(dplyr)
+  library(readr)
+  library(tidyverse)
+  library(knitr)
+  library(easystats)
+```
+
+
+
 ## Exercise 1: Initializing git (4 Points)
 
 For this whole exercise sheet we will be tracking all our changes to it
@@ -45,12 +59,26 @@ Link:
 
 For small datasets like these adding them to git is not a problem.
 
-a)  Load the `pixar_films` dataset into R. Clean the dataset by removing
-    films without a title. Inspect the variable `film_rating`. What are
-    the possible values and what do they mean? Create a factor variable
-    for the film rating. Why is this appropriate?
+a)
+    
+```{r}
+#Load data 
+pixar_films <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2025/2025-03-11/pixar_films.csv')
+#remove movies without title
+pixar_films <- pixar_films %>% filter(!is.na(film))
+#inspect "film_rating"
+pixar_films %>% distinct(film_rating) %>% head(10)
+#create factor film_rating_factor
+pixar_films$film_rating_factor <- factor(pixar_films$film_rating)
 
-<!-- -->
+```
+
+The variable "film_rating" can have the values:
+ - G    :suitable for the general audience
+ - PG   :parental guidance is suggested
+ - N/A  :no rating available 
+ 
+A factor variable consists of finite nominal or ordinal categories. The film_rating variable fits this restrictions.
 
 b)  Inspect the film titles manually. Which films form a film series? A
     film series can be identified by a common word in the titles of the
