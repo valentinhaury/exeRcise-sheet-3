@@ -84,12 +84,16 @@ pixar_films <- pixar_films %>%
     series = case_when(
       film %in% c("Toy Story", "Toy Story 2", "Toy Story 3", "Toy Story 4") ~ "Toy Story",
       film %in% c("Monsters, Inc.", "Monsters University") ~ "Monsters",
-      film %in% c("The Incredibles", "Incedribles 2") ~ "Incredibles",
+      film %in% c("The Incredibles", "Incredibles 2") ~ "Incredibles",
       film %in% c("Cars", "Cars 2", "Cars 3") ~ "Cars",
       film %in% c("Finding Nemo", "Finding Dory") ~ "Nemo",
       TRUE ~ film
-    )
-  )
+    ) 
+  ) %>%
+  group_by(series) %>%
+  mutate(count = n()) %>%
+  ungroup()
+
 #creating series dataframe with movie-titles as one String
 pixar_series <- pixar_films %>%
   group_by(series) %>%
@@ -122,10 +126,26 @@ public_response$cinema_score <- factor(public_response$cinema_score,
 pixar_films <- full_join(pixar_films, public_response, by = "film")
 ```
 
-d)  Choose one of the variables representing the public response and
-    create a bar plot for the films belonging to a series. Here are the
-    details of the plot:
+d)  
 
+```{r}
+#plot for all Pixar-movies
+ggplot(pixar_films, aes(y = cinema_score, x = fct_reorder2(film, series, -as.numeric(release_date)))) +
+  geom_bar(stat = "identity") +
+  facet_wrap(~series, scales = "free_x") +
+  labs(x="Movie", y = "Cinema-Score", title = "Cinema-Score for Pixar-movies grouped by Series")
+#plot for Pixar-series with more then 1 movie
+pixar_films %>% 
+  filter(count > 1) %>%
+  ggplot(aes(y = metacritic, x = fct_reorder2(film, series, -as.numeric(release_date)))) +
+    geom_bar(stat = "identity") +
+    facet_wrap(~series, scales = "free_x") +
+    labs(x="Movie", y = "Metacritic-Score", title = "Metacritic-Score for Pixar-movies grouped by Series") +
+    theme(axis.text.x = element_text(angle = 60, hjust = 1))
+```
+TODO -> Serien Auf der x-achse und filme darüber als Gruppen an separaten Balken
+    
+    
     -   The film series are represented on the x-axis.
     -   Your chosen public response variable is displayed on the y-axis.
     -   Each film in the series is represented as a separate bar. Bars
