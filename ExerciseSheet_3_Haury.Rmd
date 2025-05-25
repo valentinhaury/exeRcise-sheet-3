@@ -29,15 +29,11 @@ e)
 
 For this task you will upload your solution to GitHub.
 
-a)  Create a new repository on GitHub in your account named
-    `exeRcise-sheet-3`. Make sure you create a **public repository** so
-    we are able to see it for grading. Add the link to the repository
-    below:
-b)  Push your code to this new repository by copying and executing the
-    snippet on github listed under
-    `…or push an existing repository from the command line`.
-c)  Regularly push your latest changes to GitHub again and especially do
-    so when you are finished with this sheet.
+a)  Link to the repository:
+
+[GitHub](https://github.com/valentinhaury/exeRcise-sheet-3)
+b)  
+c)
 
 ## Exercise 3: Pixar Films (4 Points)
 
