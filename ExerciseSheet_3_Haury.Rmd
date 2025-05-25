@@ -19,7 +19,6 @@ output: distill::distill_article
 ```
 
 
-
 ## Exercise 1: Initializing git (4 Points)
 
 For this whole exercise sheet we will be tracking all our changes to it
@@ -29,7 +28,8 @@ a)
 b)  
 c) 
 
-d)  
+d)
+
 - strength:
   - backups of the project can be used to undo changes
   - version control that makes working on projects in teams easier and helps merging different versions of a project
@@ -39,6 +39,7 @@ d)
   
 e)
 
+
 ## Exercise 2: Putting your Repository on GitHub (3 Points)
 
 For this task you will upload your solution to GitHub.
@@ -46,21 +47,15 @@ For this task you will upload your solution to GitHub.
 a)  Link to the repository:
 
 [GitHub](https://github.com/valentinhaury/exeRcise-sheet-3)
+
 b)  
 c)
 
+
 ## Exercise 3: Pixar Films (4 Points)
 
-Download the `pixar_films` and `public_response` datasets from the
-GitHub repository and track them in git.
+a)
 
-Link:
-<https://github.com/rfordatascience/tidytuesday/tree/main/data/2025/2025-03-11>
-
-For small datasets like these adding them to git is not a problem.
-
-a)DOWNLOAD DATA AND ADD TO MY OWN GIT
-    
 ```{r}
 #Load data 
 pixar_films <- readr::read_csv('data/pixar_films.csv')
@@ -80,20 +75,47 @@ The variable "film_rating" can have the values:
  
 A factor variable consists of finite nominal or ordinal categories. The film_rating variable fits this restrictions.
 
-b)  Inspect the film titles manually. Which films form a film series? A
-    film series can be identified by a common word in the titles of the
-    films, often in conjunction with a number in the title,
-    e.g. "Despicable Me" and "Despicable Me 2". Create a dataframe which
-    displays a list of the different series with the titles of the films
-    and how many films belong to the series. Output the dataframe.
+b)
+    
+```{r}
+#adding series variable to all movies
+pixar_films <- pixar_films %>% 
+  mutate(
+    series = case_when(
+      film %in% c("Toy Story", "Toy Story 2", "Toy Story 3", "Toy Story 4") ~ "Toy Story",
+      film %in% c("Monsters, Inc.", "Monsters University") ~ "Monsters",
+      film %in% c("The Incredibles", "Incedribles 2") ~ "Incredibles",
+      film %in% c("Cars", "Cars 2", "Cars 3") ~ "Cars",
+      film %in% c("Finding Nemo", "Finding Dory") ~ "Nemo",
+      TRUE ~ film
+    )
+  )
+#creating series dataframe with movie-titles as one String
+pixar_series <- pixar_films %>%
+  group_by(series) %>%
+  summarise(
+    movies_in_series = paste(film, collapse = ", "),
+    film_count = n(),
+    .groups = "drop"
+  )
+#output
+pixar_series %>% head(10)
+```
+    
     
 Toy Story: Toy Story; Toy Story 2; Toy Story 3; Toy Story 4
 Monsters: Monsters, Inc.; Monsters University
 Incredibles: The Incredibles; Incredibles 2
-Cars: Cars 1; Cars 2; Cars 3
+Cars: Cars; Cars 2; Cars 3
 Nemo: Finding Nemo; Finding Dory
 
-c)  Load the `public_response` dataframe into R. Convert the
+c)  
+
+```{r}
+
+```
+
+Load the `public_response` dataframe into R. Convert the
     `cinema_score` variable into a factor while ensuring the factor
     levels are defined in ascending order, from the lowest to the
     highest score. Combine `public_response` with the `pixar_films`
