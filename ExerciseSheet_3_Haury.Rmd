@@ -59,7 +59,7 @@ Link:
 
 For small datasets like these adding them to git is not a problem.
 
-a)
+a)DOWNLOAD DATA AND ADD TO MY OWN GIT
     
 ```{r}
 #Load data 
