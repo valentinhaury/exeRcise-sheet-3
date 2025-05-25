@@ -63,7 +63,7 @@ a)DOWNLOAD DATA AND ADD TO MY OWN GIT
     
 ```{r}
 #Load data 
-pixar_films <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2025/2025-03-11/pixar_films.csv')
+pixar_films <- readr::read_csv('data/pixar_films.csv')
 #remove movies without title
 pixar_films <- pixar_films %>% filter(!is.na(film))
 #inspect "film_rating"
@@ -86,6 +86,12 @@ b)  Inspect the film titles manually. Which films form a film series? A
     e.g. "Despicable Me" and "Despicable Me 2". Create a dataframe which
     displays a list of the different series with the titles of the films
     and how many films belong to the series. Output the dataframe.
+    
+Toy Story: Toy Story; Toy Story 2; Toy Story 3; Toy Story 4
+Monsters: Monsters, Inc.; Monsters University
+Incredibles: The Incredibles; Incredibles 2
+Cars: Cars 1; Cars 2; Cars 3
+Nemo: Finding Nemo; Finding Dory
 
 c)  Load the `public_response` dataframe into R. Convert the
     `cinema_score` variable into a factor while ensuring the factor
