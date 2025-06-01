@@ -137,25 +137,14 @@ ggplot(pixar_films, aes(y = cinema_score, x = fct_reorder2(film, series, -as.num
 #plot for Pixar-series with more then 1 movie
 pixar_films %>% 
   filter(count > 1) %>%
-  ggplot(aes(y = metacritic, x = fct_reorder2(film, series, -as.numeric(release_date)))) +
-    geom_bar(stat = "identity") +
-    facet_wrap(~series, scales = "free_x") +
-    labs(x="Movie", y = "Metacritic-Score", title = "Metacritic-Score for Pixar-movies grouped by Series") +
+  ggplot(aes(y = metacritic, x = series, fill = film, group = interaction(series, release_date))) +
+    geom_bar(stat = "identity", position = position_dodge()) +
+    labs(x="Series", y = "Metacritic-Score", title = "Metacritic-Score for Pixar-movies grouped by Series", fill = "Movie") +
     theme(axis.text.x = element_text(angle = 60, hjust = 1))
 ```
-TODO -> Serien Auf der x-achse und filme darüber als Gruppen an separaten Balken
-    
-    
-    -   The film series are represented on the x-axis.
-    -   Your chosen public response variable is displayed on the y-axis.
-    -   Each film in the series is represented as a separate bar. Bars
-        are grouped by film under their respective series on the x-axis.
-        Order the bars within a series according to the release date of
-        the films.
-    -   A title and axis labels for context.
 
-    What do you notice when comparing the scores of the films in a
-    series? Do you see any patterns?
+The first movie of a series always has the best Metacritic-Score. If there is a 3rd movie it is better then the 2nd one, but in general the movies of a series decline in quality acording to the Metacritic-Score.   
+
 
 ## Exercise 4: Open Analysis (4 points)
 
