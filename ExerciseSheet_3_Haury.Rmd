@@ -129,11 +129,6 @@ pixar_films <- full_join(pixar_films, public_response, by = "film")
 d)  
 
 ```{r}
-#plot for all Pixar-movies
-ggplot(pixar_films, aes(y = cinema_score, x = fct_reorder2(film, series, -as.numeric(release_date)))) +
-  geom_bar(stat = "identity") +
-  facet_wrap(~series, scales = "free_x") +
-  labs(x="Movie", y = "Cinema-Score", title = "Cinema-Score for Pixar-movies grouped by Series")
 #plot for Pixar-series with more then 1 movie
 pixar_films %>% 
   filter(count > 1) %>%
@@ -173,67 +168,85 @@ To answer this question the Eurobarometer data will be analyzed for the years li
 e) 
     
 ```{r}
+#read the data and change the column names for easier access
 eurobarometer <- read.csv("data/Life satisfaction – Eurobarometer (2017).csv") 
 colnames(eurobarometer) <- c("Country", "Year", "Happiness")
 
-
+#create a df with the winning nations/years
 winners <- data.frame(
   Country = c("Italy", "Germany", "France", "Italy", "Spain", "Germany", "France"),
   Year = c(1982, 1990, 1998, 2006, 2010, 2014, 2018)
 )
 
-eurobarometer %>%
+
+#add a variable to track if a nation won in a certain year
+eurobarometer <- eurobarometer %>%
   mutate(WonWorldCup = if_else(
     paste(Country, Year) %in% paste(winners$Country, winners$Year),
     1, 0
   ))
 
-
+#function that gets the difference in happiness to the year before in a given country
 get_happiness_change <- function(df, country, year) {
   h_before <- df$Happiness[df$Country == country & df$Year == year - 1]
   h_win    <- df$Happiness[df$Country == country & df$Year == year]
-  h_after  <- df$Happiness[df$Country == country & df$Year == year + 1]
   
-  if (length(h_before) == 1 && length(h_win) == 1 && length(h_after) == 1) {
-    return(mean(c(h_win, h_after)) - h_before)
+  if (length(h_win) == 1 && length(h_before) == 1) {
+    return(h_win - h_before)
   } else {
     return(NA)
   }
 }
 
+#computing the happiness change in the winning countries comparing it to the rest of europe
 results <- winners %>%
   rowwise() %>%
   mutate(
-    Change_Winner = get_happiness_change(df, Country, Year),
-    Change_Europe = get_happiness_change(df, "European Union", Year),
+    Change_Winner = get_happiness_change(eurobarometer, Country, Year),
+    Change_Europe = get_happiness_change(eurobarometer, "European Union", Year),
     Diff = Change_Winner - Change_Europe
   ) %>%
   ungroup()
 
-print(results)
-
+#computing the change in happiness compared to the rest of europe
 average_change_compared_to_europe <- results %>%
   summarise(
     avg_chg = mean(Diff, na.rm = TRUE),
     sd_chg  = sd(Diff, na.rm = TRUE)
   )
 
+#computing the absolute change in happiness
 avg_change <- results %>%
   summarise(
     avg_chg = mean(Change_Winner, na.rm = TRUE),
     sd_chg  = sd(Change_Winner, na.rm = TRUE)
   )
 
-average_change_compared_to_europe
-avg_change
 ```
  
-On average the winnig nations perceived happiness is 0.30 with a standard deviation of 1.63 percent-points higher in the year of the worldcup and the year after the worldcup compared to the year before the worldcup. But this increase is 1.34 percent-points lower then the increase in the rest of Europe with a standard deviation of 1.50. Because of the high standard deviation the influence of winning a world cup on the happiness of a nation cant be determined with the used method and the Eurobarometer dataset. Other events like political decisions probably have bigger infuences the hide the influence of this particular sport event.
+On average the winnig nations perceived happiness is `r round(avg_change$avg_chg, 2)` with a standard deviation of `r round(avg_change$sd_chg, 2)` percent-points higher in the year of the worldcup compared to the year before the worldcup. But this increase is `r round(average_change_compared_to_europe$avg_chg, 2)` percent-points lower then the increase in the rest of Europe with a standard deviation of `r round(average_change_compared_to_europe$sd_chg, 2)` . Because of the high standard deviation the influence of winning a world cup on the happiness of a nation cant be determined with the used method and the Eurobarometer dataset. Other events like political decisions probably have bigger infuences that hide the influence of this particular sport event.
     
     
 f) 
 
-## Final Note
+```{r plot-happiness, fig.cap="Happiness over time for World Cup winners and Europe. Markers indicate winning years."}
+#filtering only the countrys that won a worldcup and adding the WonWorldCup variable to show the years where a worldcup was won
+plot_data <- eurobarometer %>%
+  mutate(WonWorldCup = paste(Country, Year) %in% paste(winners$Country, winners$Year)) %>%
+  filter(Country %in% c(winners$Country, "European Union")) 
 
-Make sure to push all your commits and changes to GitHub before
-submitting the exercise sheet.
+#drawing the line plot
+ggplot(plot_data, aes(x = Year, y = Happiness, color = Country)) +
+  geom_line(size = 1) +
+  geom_point(data = subset(plot_data, WonWorldCup == TRUE),
+             aes(x = Year, y = Happiness),
+             shape = 21, fill = "gold", size = 3, stroke = 1.2) +
+  theme_minimal() +
+  labs(
+    y = "Share of People Who Are Happy (%)",
+    x = "Year",
+    color = "Country"
+  )
+
+```
+
