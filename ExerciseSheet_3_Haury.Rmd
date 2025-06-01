@@ -148,30 +148,90 @@ The first movie of a series always has the best Metacritic-Score. If there is a 
 
 ## Exercise 4: Open Analysis (4 points)
 
-This exercise is a bit more open-ended. You can choose any dataset from
-[Our World in Data](https://ourworldindata.org/) and analyze it, while
-determining the research question yourself.
+a)  
+b)  
+c)  
 
-a)  Go to <https://github.com/owid/owid-datasets/tree/master/datasets>
-    and choose a dataset that interests you. You can have a look at
-    <https://ourworldindata.org/> to gather some inspiration.
-b)  Download the dataset and track it in git.
-c)  Put the name / title of the dataset and a link to it below.
+-   Dataset Name: Life satisfaction – Eurobarometer (2017)
+-   Link: <https://github.com/owid/owid-datasets/tree/master/datasets/Life%20satisfaction%20%E2%80%93%20Eurobarometer%20(2017)>
 
--   Dataset Name: ...
--   Link: <https://github.com/owid/owid-datasets/>...
+d)  
 
-d)  Come up with a (research) question you want to answer with the data
-    and briefly explain why you believe this is an interesting question
-    within one sentence. It should be a question that can be answered
-    with the dataset and using R.
-e)  Use R to answer your chosen question. Please limit your analysis to
-    the functions and techniques we have covered so far in the course.
-    You are **not expected** to use advanced statistical models or
-    external packages which haven't been introduced.
-f)  Create a meaningful plot / figure with the dataset. Make sure to
-    provide a figure caption (via the chunk options / Rmarkdown) and
-    correctly label the figure.
+Does winning the FIFA worldcup change the percieved Life Satisfaction of people in a european country compared to the rest of europe?
+This question explores the psychological and emotional impact of national events on subjective well-being.
+
+To answer this question the Eurobarometer data will be analyzed for the years listed below and the countries Italy, Germany, France and Spain.
+
+1982 Italy
+1990 Germany
+1998 France
+2006 Italy
+2010 Spain
+2014 Germany
+2018 France
+
+e) 
+    
+```{r}
+eurobarometer <- read.csv("data/Life satisfaction – Eurobarometer (2017).csv") 
+colnames(eurobarometer) <- c("Country", "Year", "Happiness")
+
+
+winners <- data.frame(
+  Country = c("Italy", "Germany", "France", "Italy", "Spain", "Germany", "France"),
+  Year = c(1982, 1990, 1998, 2006, 2010, 2014, 2018)
+)
+
+eurobarometer %>%
+  mutate(WonWorldCup = if_else(
+    paste(Country, Year) %in% paste(winners$Country, winners$Year),
+    1, 0
+  ))
+
+
+get_happiness_change <- function(df, country, year) {
+  h_before <- df$Happiness[df$Country == country & df$Year == year - 1]
+  h_win    <- df$Happiness[df$Country == country & df$Year == year]
+  h_after  <- df$Happiness[df$Country == country & df$Year == year + 1]
+  
+  if (length(h_before) == 1 && length(h_win) == 1 && length(h_after) == 1) {
+    return(mean(c(h_win, h_after)) - h_before)
+  } else {
+    return(NA)
+  }
+}
+
+results <- winners %>%
+  rowwise() %>%
+  mutate(
+    Change_Winner = get_happiness_change(df, Country, Year),
+    Change_Europe = get_happiness_change(df, "European Union", Year),
+    Diff = Change_Winner - Change_Europe
+  ) %>%
+  ungroup()
+
+print(results)
+
+average_change_compared_to_europe <- results %>%
+  summarise(
+    avg_chg = mean(Diff, na.rm = TRUE),
+    sd_chg  = sd(Diff, na.rm = TRUE)
+  )
+
+avg_change <- results %>%
+  summarise(
+    avg_chg = mean(Change_Winner, na.rm = TRUE),
+    sd_chg  = sd(Change_Winner, na.rm = TRUE)
+  )
+
+average_change_compared_to_europe
+avg_change
+```
+ 
+On average the winnig nations perceived happiness is 0.30 with a standard deviation of 1.63 percent-points higher in the year of the worldcup and the year after the worldcup compared to the year before the worldcup. But this increase is 1.34 percent-points lower then the increase in the rest of Europe with a standard deviation of 1.50. Because of the high standard deviation the influence of winning a world cup on the happiness of a nation cant be determined with the used method and the Eurobarometer dataset. Other events like political decisions probably have bigger infuences the hide the influence of this particular sport event.
+    
+    
+f) 
 
 ## Final Note
 
